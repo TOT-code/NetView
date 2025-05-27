@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetView - PyTorch网络结构可视化工具</title>
+    
+    <!-- 引入外部CSS库 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 引入D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header>
+            <h1><i class="fas fa-project-diagram"></i> NetView</h1>
+            <p>PyTorch网络结构可视化工具</p>
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main>
+            <!-- 左侧输入区域 -->
+            <div class="input-section">
+                <h2><i class="fas fa-code"></i> 模型代码输入</h2>
+                
+                <!-- 代码输入框 -->
+                <textarea 
+                    id="model-code" 
+                    placeholder="请输入PyTorch模型定义代码...
+                    
+示例：
+import torch
+import torch.nn as nn
+
+class SimpleCNN(nn.Module):
+    def __init__(self, num_classes=10):
+        super(SimpleCNN, self).__init__()
+        
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        
+        self.fc1 = nn.Linear(64 * 8 * 8, 512)
+        self.fc2 = nn.Linear(512, num_classes)
+        
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.5)
+    
+    def forward(self, x):
+        x = self.pool(self.relu(self.conv1(x)))
+        x = self.pool(self.relu(self.conv2(x)))
+        
+        x = x.view(-1, 64 * 8 * 8)
+        
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        
+        return x"
+                ></textarea>
+                
+                <!-- 操作按钮 -->
+                <div class="button-group">
+                    <button id="parse-btn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> 解析模型
+                    </button>
+                    <button id="clear-btn" class="btn btn-secondary secondary-btn">
+                        <i class="fas fa-trash"></i> 清空
+                    </button>
+                    <button id="example-btn" class="btn btn-info secondary-btn">
+                        <i class="fas fa-lightbulb"></i> 示例
+                    </button>
+                </div>
+                
+                <!-- 配置面板 -->
+                <div class="config-panel">
+                    <h3><i class="fas fa-cogs"></i> 可视化配置</h3>
+                    
+                    <div class="config-option">
+                        <input type="checkbox" id="show-params" checked>
+                        <label for="show-params">显示参数数量</label>
+                    </div>
+                    
+                    <div class="config-option">
+                        <input type="checkbox" id="show-shapes" checked>
+                        <label for="show-shapes">显示张量形状</label>
+                    </div>
+                    
+                    <div class="config-option">
+                        <input type="checkbox" id="auto-layout" checked>
+                        <label for="auto-layout">自动布局</label>
+                    </div>
+                </div>
+                
+                <!-- 导出选项 -->
+                <div class="config-panel">
+                    <h3><i class="fas fa-download"></i> 导出选项</h3>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-outline-primary btn-sm" onclick="window.uiHandler?.exportGraph('svg')">
+                            <i class="fas fa-file-image"></i> SVG
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="window.uiHandler?.exportGraph('png')">
+                            <i class="fas fa-image"></i> PNG
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 快捷键提示 -->
+                <div class="config-panel">
+                    <h3><i class="fas fa-keyboard"></i> 快捷键</h3>
+                    <small class="text-muted">
+                        <div><strong>Ctrl + Enter:</strong> 解析模型</div>
+                        <div><strong>鼠标拖拽:</strong> 移动节点</div>
+                        <div><strong>鼠标滚轮:</strong> 缩放视图</div>
+                        <div><strong>鼠标悬停:</strong> 查看详情</div>
+                    </small>
+                </div>
+            </div>
+            
+            <!-- 右侧可视化区域 -->
+            <div class="visualization-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2><i class="fas fa-sitemap"></i> 网络结构图</h2>
+                    
+                    <!-- 视图控制按钮 -->
+                    <div class="btn-group" role="group">
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-secondary btn-sm"
+                            onclick="window.visualizationEngine?.resetView()"
+                            title="重置视图"
+                        >
+                            <i class="fas fa-home"></i>
+                        </button>
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-secondary btn-sm"
+                            onclick="window.location.reload()"
+                            title="刷新页面"
+                        >
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 图形容器 -->
+                <div id="graph-container">
+                    <div style="text-align: center; color: #666; padding: 60px 20px;">
+                        <i class="fas fa-upload" style="font-size: 48px; margin-bottom: 16px; color: #ccc;"></i>
+                        <p style="font-size: 18px; margin-bottom: 8px;">欢迎使用NetView</p>
+                        <p style="font-size: 14px; color: #999;">请在左侧输入PyTorch模型代码并点击"解析模型"按钮</p>
+                        <div style="margin-top: 20px;">
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #FF6B6B; border-radius: 50%; margin-right: 5px;"></span>
+                            <small>卷积层</small>
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #4ECDC4; border-radius: 50%; margin: 0 5px 0 15px;"></span>
+                            <small>全连接层</small>
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #45B7D1; border-radius: 50%; margin: 0 5px 0 15px;"></span>
+                            <small>池化层</small>
+                            <span style="display: inline-block; width: 12px; height: 12px; background: #FFEAA7; border-radius: 50%; margin: 0 5px 0 15px;"></span>
+                            <small>激活函数</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 图例 -->
+                <div class="mt-3" style="font-size: 12px; color: #666; text-align: center;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>操作说明：</strong>
+                            <br>拖拽节点可调整位置，滚轮可缩放视图
+                        </div>
+                        <div class="col-md-6">
+                            <strong>颜色说明：</strong>
+                            <br>不同颜色代表不同类型的网络层
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- 底部信息 -->
+        <footer style="text-align: center; padding: 20px 0; color: #666; font-size: 12px; border-top: 1px solid #eee; margin-top: 20px;">
+            <p>NetView v0.1.0 - PyTorch网络结构可视化工具</p>
+            <p>
+                <a href="https://github.com/netview/netview" target="_blank" style="color: #667eea; text-decoration: none;">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                |
+                <a href="#" style="color: #667eea; text-decoration: none;">
+                    <i class="fas fa-book"></i> 文档
+                </a>
+                |
+                <a href="#" style="color: #667eea; text-decoration: none;">
+                    <i class="fas fa-question-circle"></i> 帮助
+                </a>
+            </p>
+        </footer>
+    </div>
+    
+    <!-- 引入JavaScript文件 -->
+    <script src="js/api_client.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/ui_handler.js"></script>
+    
+    <!-- 页面加载完成后的初始化 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('NetView 初始化完成');
+            
+            // 检查必要的依赖
+            if (typeof d3 === 'undefined') {
+                console.error('D3.js 未加载');
+                alert('D3.js库加载失败，可视化功能将不可用');
+            }
+            
+            // 添加一些全局错误处理
+            window.addEventListener('error', function(event) {
+                console.error('页面错误:', event.error);
+            });
+            
+            window.addEventListener('unhandledrejection', function(event) {
+                console.error('未处理的Promise拒绝:', event.reason);
+            });
+        });
+    </script>
+</body>
+</html>
