@@ -36,20 +36,21 @@ git commit -m "初始化NetView项目"
 
 ```bash
 # 添加远程仓库（将YOUR_USERNAME和YOUR_REPO替换为实际值）
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+# 将您的本地Git仓库连接到远程仓库（如GitHub、GitLab）
+git remote add origin https://github.com/ToT-code/NetView.git
 
 # 或者使用SSH（推荐，需要先配置SSH密钥）
-git remote add origin git@github.com:YOUR_USERNAME/YOUR_REPO.git
+git remote add origin git@github.com:ToT-code/NetView.git
 
 # 推送到远程仓库
-git push -u origin main
+git push -u origin master
 ```
 
 ### 3. SSH密钥配置（推荐）
 
 ```bash
 # 生成SSH密钥
-ssh-keygen -t ed25519 -C "您的邮箱@example.com"
+ssh-keygen -t ed25519 -C "xjl2026@qq.com"
 
 # 查看公钥内容
 cat ~/.ssh/id_ed25519.pub

@@ -1,0 +1,816 @@
+{
+  "model_name": "SimpleCNN",
+  "ast_info": {
+    "class_name": "SimpleCNN",
+    "layers": [
+      {
+        "name": "conv1",
+        "layer_type": "Conv2d",
+        "args": [
+          3,
+          32
+        ],
+        "kwargs": {
+          "kernel_size": 3,
+          "padding": 1
+        },
+        "line_number": 8
+      },
+      {
+        "name": "conv2",
+        "layer_type": "Conv2d",
+        "args": [
+          32,
+          64
+        ],
+        "kwargs": {
+          "kernel_size": 3,
+          "padding": 1
+        },
+        "line_number": 9
+      },
+      {
+        "name": "conv3",
+        "layer_type": "Conv2d",
+        "args": [
+          64,
+          128
+        ],
+        "kwargs": {
+          "kernel_size": 3,
+          "padding": 1
+        },
+        "line_number": 10
+      },
+      {
+        "name": "pool",
+        "layer_type": "MaxPool2d",
+        "args": [
+          2,
+          2
+        ],
+        "kwargs": {},
+        "line_number": 13
+      },
+      {
+        "name": "fc1",
+        "layer_type": "Linear",
+        "args": [
+          "<_ast.BinOp object at 0x00000231E6B1D100>",
+          512
+        ],
+        "kwargs": {},
+        "line_number": 16
+      },
+      {
+        "name": "fc2",
+        "layer_type": "Linear",
+        "args": [
+          512,
+          256
+        ],
+        "kwargs": {},
+        "line_number": 17
+      },
+      {
+        "name": "fc3",
+        "layer_type": "Linear",
+        "args": [
+          256,
+          "num_classes"
+        ],
+        "kwargs": {},
+        "line_number": 18
+      },
+      {
+        "name": "relu",
+        "layer_type": "ReLU",
+        "args": [],
+        "kwargs": {},
+        "line_number": 21
+      },
+      {
+        "name": "dropout",
+        "layer_type": "Dropout",
+        "args": [
+          0.5
+        ],
+        "kwargs": {},
+        "line_number": 22
+      }
+    ],
+    "forward_flow": [
+      "x = <_ast.Call object at 0x00000231E6AFF430>",
+      "x = <_ast.Call object at 0x00000231E6AFF490>",
+      "x = <_ast.Call object at 0x00000231E6AFF7C0>",
+      "x = <_ast.Call object at 0x00000231E6AFF9A0>",
+      "x = <_ast.Call object at 0x00000231E6B12460>",
+      "x = <_ast.Call object at 0x00000231E6B12C10>",
+      "x = <_ast.Call object at 0x00000231E6B127F0>",
+      "x = <_ast.Call object at 0x00000231E6B12CA0>",
+      "x = <_ast.Call object at 0x00000231E6B12880>"
+    ],
+    "imports": [],
+    "parent_classes": [
+      "nn.Module"
+    ]
+  },
+  "structure_info": {
+    "model_name": "SimpleCNN",
+    "modules": {
+      "conv1": {
+        "name": "conv1",
+        "module_type": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 3,
+          "out_channels": 32,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          3,
+          32,
+          32
+        ],
+        "output_shape": [
+          1,
+          32,
+          32,
+          32
+        ],
+        "num_parameters": 896,
+        "trainable_parameters": 896,
+        "children": [],
+        "parent": null
+      },
+      "conv2": {
+        "name": "conv2",
+        "module_type": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 32,
+          "out_channels": 64,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          32,
+          16,
+          16
+        ],
+        "output_shape": [
+          1,
+          64,
+          16,
+          16
+        ],
+        "num_parameters": 18496,
+        "trainable_parameters": 18496,
+        "children": [],
+        "parent": null
+      },
+      "conv3": {
+        "name": "conv3",
+        "module_type": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 64,
+          "out_channels": 128,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          64,
+          8,
+          8
+        ],
+        "output_shape": [
+          1,
+          128,
+          8,
+          8
+        ],
+        "num_parameters": 73856,
+        "trainable_parameters": 73856,
+        "children": [],
+        "parent": null
+      },
+      "pool": {
+        "name": "pool",
+        "module_type": "MaxPool2d",
+        "parameters": {
+          "training": true,
+          "kernel_size": 2,
+          "stride": 2,
+          "padding": 0,
+          "dilation": 1,
+          "return_indices": false,
+          "ceil_mode": false
+        },
+        "input_shape": [
+          1,
+          128,
+          8,
+          8
+        ],
+        "output_shape": [
+          1,
+          128,
+          4,
+          4
+        ],
+        "num_parameters": 0,
+        "trainable_parameters": 0,
+        "children": [],
+        "parent": null
+      },
+      "fc1": {
+        "name": "fc1",
+        "module_type": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 2048,
+          "out_features": 512,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          2048
+        ],
+        "output_shape": [
+          1,
+          512
+        ],
+        "num_parameters": 1049088,
+        "trainable_parameters": 1049088,
+        "children": [],
+        "parent": null
+      },
+      "fc2": {
+        "name": "fc2",
+        "module_type": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 512,
+          "out_features": 256,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          512
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 131328,
+        "trainable_parameters": 131328,
+        "children": [],
+        "parent": null
+      },
+      "fc3": {
+        "name": "fc3",
+        "module_type": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 256,
+          "out_features": 10,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          10
+        ],
+        "num_parameters": 2570,
+        "trainable_parameters": 2570,
+        "children": [],
+        "parent": null
+      },
+      "relu": {
+        "name": "relu",
+        "module_type": "ReLU",
+        "parameters": {
+          "training": true,
+          "inplace": false
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 0,
+        "trainable_parameters": 0,
+        "children": [],
+        "parent": null
+      },
+      "dropout": {
+        "name": "dropout",
+        "module_type": "Dropout",
+        "parameters": {
+          "training": true,
+          "p": 0.5,
+          "inplace": false
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 0,
+        "trainable_parameters": 0,
+        "children": [],
+        "parent": null
+      }
+    },
+    "execution_order": [
+      "conv1",
+      "relu",
+      "pool",
+      "conv2",
+      "conv3",
+      "fc1",
+      "dropout",
+      "fc2",
+      "fc3"
+    ],
+    "total_parameters": 1276234,
+    "trainable_parameters": 1276234,
+    "model_size_mb": 4.87
+  },
+  "network_graph": {
+    "nodes": {
+      "conv1": {
+        "id": "conv1",
+        "type": "Conv2d",
+        "label": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 3,
+          "out_channels": 32,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          3,
+          32,
+          32
+        ],
+        "output_shape": [
+          1,
+          32,
+          32,
+          32
+        ],
+        "num_parameters": 896,
+        "trainable": true
+      },
+      "conv2": {
+        "id": "conv2",
+        "type": "Conv2d",
+        "label": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 32,
+          "out_channels": 64,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          32,
+          16,
+          16
+        ],
+        "output_shape": [
+          1,
+          64,
+          16,
+          16
+        ],
+        "num_parameters": 18496,
+        "trainable": true
+      },
+      "conv3": {
+        "id": "conv3",
+        "type": "Conv2d",
+        "label": "Conv2d",
+        "parameters": {
+          "training": true,
+          "in_channels": 64,
+          "out_channels": 128,
+          "kernel_size": [
+            3,
+            3
+          ],
+          "stride": [
+            1,
+            1
+          ],
+          "padding": [
+            1,
+            1
+          ],
+          "dilation": [
+            1,
+            1
+          ],
+          "transposed": false,
+          "output_padding": [
+            0,
+            0
+          ],
+          "groups": 1,
+          "padding_mode": "zeros",
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          64,
+          8,
+          8
+        ],
+        "output_shape": [
+          1,
+          128,
+          8,
+          8
+        ],
+        "num_parameters": 73856,
+        "trainable": true
+      },
+      "pool": {
+        "id": "pool",
+        "type": "MaxPool2d",
+        "label": "MaxPool2d",
+        "parameters": {
+          "training": true,
+          "kernel_size": 2,
+          "stride": 2,
+          "padding": 0,
+          "dilation": 1,
+          "return_indices": false,
+          "ceil_mode": false
+        },
+        "input_shape": [
+          1,
+          128,
+          8,
+          8
+        ],
+        "output_shape": [
+          1,
+          128,
+          4,
+          4
+        ],
+        "num_parameters": 0,
+        "trainable": false
+      },
+      "fc1": {
+        "id": "fc1",
+        "type": "Linear",
+        "label": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 2048,
+          "out_features": 512,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          2048
+        ],
+        "output_shape": [
+          1,
+          512
+        ],
+        "num_parameters": 1049088,
+        "trainable": true
+      },
+      "fc2": {
+        "id": "fc2",
+        "type": "Linear",
+        "label": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 512,
+          "out_features": 256,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          512
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 131328,
+        "trainable": true
+      },
+      "fc3": {
+        "id": "fc3",
+        "type": "Linear",
+        "label": "Linear",
+        "parameters": {
+          "training": true,
+          "in_features": 256,
+          "out_features": 10,
+          "bias": true
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          10
+        ],
+        "num_parameters": 2570,
+        "trainable": true
+      },
+      "relu": {
+        "id": "relu",
+        "type": "ReLU",
+        "label": "ReLU",
+        "parameters": {
+          "training": true,
+          "inplace": false
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 0,
+        "trainable": false
+      },
+      "dropout": {
+        "id": "dropout",
+        "type": "Dropout",
+        "label": "Dropout",
+        "parameters": {
+          "training": true,
+          "p": 0.5,
+          "inplace": false
+        },
+        "input_shape": [
+          1,
+          256
+        ],
+        "output_shape": [
+          1,
+          256
+        ],
+        "num_parameters": 0,
+        "trainable": false
+      }
+    },
+    "edges": [
+      {
+        "source": "conv1",
+        "target": "relu",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "relu",
+        "target": "pool",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "pool",
+        "target": "conv2",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "conv2",
+        "target": "conv3",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "conv3",
+        "target": "fc1",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "fc1",
+        "target": "dropout",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "dropout",
+        "target": "fc2",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      },
+      {
+        "source": "fc2",
+        "target": "fc3",
+        "connection_type": "sequential",
+        "data_flow": {
+          "type": "forward"
+        }
+      }
+    ],
+    "input_nodes": [
+      "conv1"
+    ],
+    "output_nodes": [
+      "fc3"
+    ],
+    "graph_type": "feedforward"
+  },
+  "complexity_analysis": {
+    "total_layers": 9,
+    "layer_types": {
+      "Conv2d": 3,
+      "MaxPool2d": 1,
+      "Linear": 3,
+      "ReLU": 1,
+      "Dropout": 1
+    },
+    "has_residual": true,
+    "has_attention": false,
+    "has_branching": false,
+    "depth": 0,
+    "width": 0,
+    "total_parameters": 1276234,
+    "trainable_parameters": 1276234,
+    "model_size_mb": 4.87
+  },
+  "forward_flow_analysis": {
+    "execution_order": [
+      "conv1",
+      "relu",
+      "pool",
+      "conv2",
+      "conv3",
+      "fc1",
+      "dropout",
+      "fc2",
+      "fc3"
+    ],
+    "data_transformations": [
+      "x = <_ast.Call object at 0x00000231E6AFF430>",
+      "x = <_ast.Call object at 0x00000231E6AFF490>",
+      "x = <_ast.Call object at 0x00000231E6AFF7C0>",
+      "x = <_ast.Call object at 0x00000231E6AFF9A0>",
+      "x = <_ast.Call object at 0x00000231E6B12460>",
+      "x = <_ast.Call object at 0x00000231E6B12C10>",
+      "x = <_ast.Call object at 0x00000231E6B127F0>",
+      "x = <_ast.Call object at 0x00000231E6B12CA0>",
+      "x = <_ast.Call object at 0x00000231E6B12880>"
+    ],
+    "branching_points": [],
+    "merge_points": [],
+    "activation_functions": []
+  }
+}
