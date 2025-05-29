@@ -6,7 +6,6 @@
 import torch
 import torch.nn as nn
 
-
 class SimpleCNN(nn.Module):
     """简单的卷积神经网络"""
     
@@ -21,8 +20,10 @@ class SimpleCNN(nn.Module):
         # 池化层
         self.pool = nn.MaxPool2d(2, 2)
         
-        # 全连接层
-        self.fc1 = nn.Linear(128 * 4 * 4, 512)
+        # 全连接层 - 修复形状计算
+        # 计算路径：32x32 -> pool -> 16x16 -> pool -> 8x8 -> pool -> 4x4
+        # 所以最终特征图大小是 128 * 4 * 4 = 2048
+        self.fc1 = nn.Linear(128 * 4 * 4, 512)  # 2048 -> 512
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, num_classes)
         
@@ -32,12 +33,12 @@ class SimpleCNN(nn.Module):
     
     def forward(self, x):
         # 卷积+池化层
-        x = self.pool(self.relu(self.conv1(x)))  # 32x16x16
-        x = self.pool(self.relu(self.conv2(x)))  # 64x8x8
-        x = self.pool(self.relu(self.conv3(x)))  # 128x4x4
+        x = self.pool(self.relu(self.conv1(x)))  # 32x32 -> 32x16x16
+        x = self.pool(self.relu(self.conv2(x)))  # 32x16x16 -> 64x8x8
+        x = self.pool(self.relu(self.conv3(x)))  # 64x8x8 -> 128x4x4
         
-        # 展平
-        x = x.view(-1, 128 * 4 * 4)
+        # 展平 - 使用动态大小计算以避免形状错误
+        x = x.view(x.size(0), -1)  # 自动计算展平大小
         
         # 全连接层
         x = self.relu(self.fc1(x))
@@ -47,7 +48,6 @@ class SimpleCNN(nn.Module):
         x = self.fc3(x)
         
         return x
-
 
 # 示例用法
 if __name__ == "__main__":

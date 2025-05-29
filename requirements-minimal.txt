@@ -1,0 +1,34 @@
+# NetView - 最小依赖包清单
+# 仅包含运行所需的核心依赖
+
+# 核心Web框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# 数据验证和序列化
+pydantic>=2.5.0
+
+# PyTorch核心
+torch>=1.9.0
+torchvision>=0.10.0
+
+# 基础数据处理
+numpy>=1.21.0
+
+# 网络图处理
+networkx>=2.8.0
+
+# 异步文件处理
+aiofiles>=22.1.0
+
+# HTTP客户端
+httpx>=0.24.0
+
+# 日志
+rich>=13.0.0
+
+# 配置管理
+python-dotenv>=1.0.0
+
+# 多部分表单支持
+python-multipart>=0.0.5
