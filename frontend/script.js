@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化组件
     const appState = new AppState();
     const notifications = new NotificationManager();
-    const graphManager = new NetworkGraphManager();
+    const graphManager = new EnhancedNetworkGraphManager();
     
     // 获取DOM元素
     const modelCodeEl = document.getElementById('model-code');

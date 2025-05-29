@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetView 增强图形测试</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 NetView 增强模型结构图测试</h1>
+            <button class="theme-toggle" id="theme-toggle">🌙 暗色主题</button>
+        </header>
+
+        <div class="main-grid">
+            <!-- 控制面板 -->
+            <div class="sidebar">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">🎮 测试控制</h2>
+                    </div>
+                    <div class="card-content">
+                        <button id="test-simple-cnn" class="btn btn-primary" style="margin-bottom: 0.5rem;">
+                            📊 测试简单CNN
+                        </button>
+                        <button id="test-resnet" class="btn btn-primary" style="margin-bottom: 0.5rem;">
+                            🏗️ 测试ResNet结构
+                        </button>
+                        <button id="test-transformer" class="btn btn-primary" style="margin-bottom: 0.5rem;">
+                            🔄 测试Transformer
+                        </button>
+                        <button id="test-complex-model" class="btn btn-primary" style="margin-bottom: 0.5rem;">
+                            🌐 测试复杂模型
+                        </button>
+                        
+                        <hr style="margin: 1rem 0;">
+                        
+                        <h3 style="margin-bottom: 0.5rem;">布局选择:</h3>
+                        <select id="layout-selector" style="width: 100%; margin-bottom: 0.5rem;">
+                            <option value="hierarchical">分层布局</option>
+                            <option value="network">网络布局</option>
+                            <option value="circular">环形布局</option>
+                        </select>
+                        
+                        <h3 style="margin-bottom: 0.5rem;">显示选项:</h3>
+                        <label style="display: block; margin-bottom: 0.25rem;">
+                            <input type="checkbox" id="show-parameters" checked> 显示参数数量
+                        </label>
+                        <label style="display: block; margin-bottom: 0.25rem;">
+                            <input type="checkbox" id="show-shapes" checked> 显示张量形状
+                        </label>
+                        <label style="display: block; margin-bottom: 0.25rem;">
+                            <input type="checkbox" id="show-flops"> 显示计算量
+                        </label>
+                        <label style="display: block; margin-bottom: 0.25rem;">
+                            <input type="checkbox" id="show-memory"> 显示内存占用
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 图形统计 -->
+                <div class="card slide-up">
+                    <div class="card-header">
+                        <h2 class="card-title">📈 图形统计</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">节点数</div>
+                                <div class="stat-value" id="node-count">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">连接数</div>
+                                <div class="stat-value" id="edge-count">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">层类型</div>
+                                <div class="stat-value" id="layer-types">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">复杂度</div>
+                                <div class="stat-value" id="complexity">低</div>
+                            </div>
+                        </div>
+                        
+                        <div id="layer-breakdown" style="margin-top: 1rem;">
+                            <h4>层类型分布:</h4>
+                            <div id="layer-distribution"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主可视化区域 -->
+            <div class="main-content">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">🎯 增强模型结构图</h2>
+                        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                            <button id="fullscreen-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                📱 全屏
+                            </button>
+                            <button id="export-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                💾 导出
+                            </button>
+                            <button id="reset-view-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                🔄 重置视图
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div id="network-graph" style="height: 600px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); flex-direction: column; gap: 1rem;">
+                                <div style="font-size: 3rem;">🎨</div>
+                                <div style="font-size: 1.1rem;">增强模型结构图测试</div>
+                                <div style="font-size: 0.9rem; opacity: 0.7;">选择左侧的测试模型查看效果</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 节点详情面板 -->
+                <div class="card slide-up hidden" id="node-details-panel">
+                    <div class="card-header">
+                        <h2 class="card-title">🔍 节点详情</h2>
+                        <button id="close-details" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">❌</button>
+                    </div>
+                    <div class="card-content">
+                        <div id="node-details-content">
+                            <!-- 动态加载节点详情 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通知系统 -->
+        <div id="notification" class="hidden" style="position: fixed; top: 2rem; right: 2rem; z-index: 1000; max-width: 300px;">
+            <div style="background: var(--success-color); color: white; padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                <div id="notification-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="enhanced-graph-manager.js"></script>
+    <script>
+        // 测试数据生成器
+        class TestDataGenerator {
+            static generateSimpleCNN() {
+                const nodes = [
+                    {
+                        id: "input",
+                        type: "Input",
+                        num_parameters: 0,
+                        input_shape: [1, 3, 224, 224],
+                        output_shape: [1, 3, 224, 224],
+                        flops: 0,
+                        memory_usage: 3 * 224 * 224 * 4
+                    },
+                    {
+                        id: "conv1",
+                        type: "Conv2d",
+                        num_parameters: 3 * 32 * 3 * 3 + 32,
+                        input_shape: [1, 3, 224, 224],
+                        output_shape: [1, 32, 222, 222],
+                        flops: 32 * 3 * 3 * 3 * 222 * 222,
+                        memory_usage: 32 * 222 * 222 * 4,
+                        parameters: {
+                            in_channels: 3,
+                            out_channels: 32,
+                            kernel_size: 3,
+                            stride: 1,
+                            padding: 0
+                        }
+                    },
+                    {
+                        id: "relu1",
+                        type: "ReLU",
+                        num_parameters: 0,
+                        input_shape: [1, 32, 222, 222],
+                        output_shape: [1, 32, 222, 222],
+                        flops: 32 * 222 * 222,
+                        memory_usage: 0
+                    },
+                    {
+                        id: "pool1",
+                        type: "MaxPool2d",
+                        num_parameters: 0,
+                        input_shape: [1, 32, 222, 222],
+                        output_shape: [1, 32, 111, 111],
+                        flops: 32 * 111 * 111 * 4,
+                        memory_usage: 32 * 111 * 111 * 4,
+                        parameters: {
+                            kernel_size: 2,
+                            stride: 2
+                        }
+                    },
+                    {
+                        id: "conv2",
+                        type: "Conv2d",
+                        num_parameters: 32 * 64 * 3 * 3 + 64,
+                        input_shape: [1, 32, 111, 111],
+                        output_shape: [1, 64, 109, 109],
+                        flops: 64 * 32 * 3 * 3 * 109 * 109,
+                        memory_usage: 64 * 109 * 109 * 4,
+                        parameters: {
+                            in_channels: 32,
+                            out_channels: 64,
+                            kernel_size: 3,
+                            stride: 1,
+                            padding: 0
+                        }
+                    },
+                    {
+                        id: "relu2",
+                        type: "ReLU",
+                        num_parameters: 0,
+                        input_shape: [1, 64, 109, 109],
+                        output_shape: [1, 64, 109, 109],
+                        flops: 64 * 109 * 109,
+                        memory_usage: 0
+                    },
+                    {
+                        id: "pool2",
+                        type: "MaxPool2d",
+                        num_parameters: 0,
+                        input_shape: [1, 64, 109, 109],
+                        output_shape: [1, 64, 54, 54],
+                        flops: 64 * 54 * 54 * 4,
+                        memory_usage: 64 * 54 * 54 * 4,
+                        parameters: {
+                            kernel_size: 2,
+                            stride: 2
+                        }
+                    },
+                    {
+                        id: "flatten",
+                        type: "Flatten",
+                        num_parameters: 0,
+                        input_shape: [1, 64, 54, 54],
+                        output_shape: [1, 186624],
+                        flops: 0,
+                        memory_usage: 0
+                    },
+                    {
+                        id: "fc1",
+                        type: "Linear",
+                        num_parameters: 186624 * 128 + 128,
+                        input_shape: [1, 186624],
+                        output_shape: [1, 128],
+                        flops: 186624 * 128 * 2,
+                        memory_usage: 128 * 4,
+                        parameters: {
+                            in_features: 186624,
+                            out_features: 128,
+                            bias: true
+                        }
+                    },
+                    {
+                        id: "relu3",
+                        type: "ReLU",
+                        num_parameters: 0,
+                        input_shape: [1, 128],
+                        output_shape: [1, 128],
+                        flops: 128,
+                        memory_usage: 0
+                    },
+                    {
+                        id: "fc2",
+                        type: "Linear",
+                        num_parameters: 128 * 10 + 10,
+                        input_shape: [1, 128],
+                        output_shape: [1, 10],
+                        flops: 128 * 10 * 2,
+                        memory_usage: 10 * 4,
+                        parameters: {
+                            in_features: 128,
+                            out_features: 10,
+                            bias: true
+                        }
+                    }
+                ];
+
+                const edges = [
+                    { source: "input", target: "conv1", connection_type: "sequential" },
+                    { source: "conv1", target: "relu1", connection_type: "sequential" },
+                    { source: "relu1", target: "pool1", connection_type: "sequential" },
+                    { source: "pool1", target: "conv2", connection_type: "sequential" },
+                    { source: "conv2", target: "relu2", connection_type: "sequential" },
+                    { source: "relu2", target: "pool2", connection_type: "sequential" },
+                    { source: "pool2", target: "flatten", connection_type: "sequential" },
+                    { source: "flatten", target: "fc1", connection_type: "sequential" },
+                    { source: "fc1", target: "relu3", connection_type: "sequential" },
+                    { source: "relu3", target: "fc2", connection_type: "sequential" }
+                ];
+
+                return { nodes, edges, metadata: { model_type: "CNN", complexity: "simple" } };
+            }
+
+            static generateResNet() {
+                const nodes = [
+                    { id: "input", type: "Input", num_parameters: 0, input_shape: [1, 3, 224, 224], output_shape: [1, 3, 224, 224] },
+                    { id: "conv1", type: "Conv2d", num_parameters: 3 * 64 * 7 * 7 + 64, input_shape: [1, 3, 224, 224], output_shape: [1, 64, 112, 112] },
+                    { id: "bn1", type: "BatchNorm2d", num_parameters: 64 * 2, input_shape: [1, 64, 112, 112], output_shape: [1, 64, 112, 112] },
+                    { id: "relu1", type: "ReLU", num_parameters: 0, input_shape: [1, 64, 112, 112], output_shape: [1, 64, 112, 112] },
+                    { id: "pool1", type: "MaxPool2d", num_parameters: 0, input_shape: [1, 64, 112, 112], output_shape: [1, 64, 56, 56] },
+                    
+                    // 第一个残差块
+                    { id: "conv2_1", type: "Conv2d", num_parameters: 64 * 64 * 3 * 3 + 64, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "bn2_1", type: "BatchNorm2d", num_parameters: 64 * 2, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "relu2_1", type: "ReLU", num_parameters: 0, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "conv2_2", type: "Conv2d", num_parameters: 64 * 64 * 3 * 3 + 64, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "bn2_2", type: "BatchNorm2d", num_parameters: 64 * 2, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "add1", type: "Add", num_parameters: 0, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    { id: "relu2_2", type: "ReLU", num_parameters: 0, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 56, 56] },
+                    
+                    // 全局平均池化和分类器
+                    { id: "avgpool", type: "AdaptiveAvgPool2d", num_parameters: 0, input_shape: [1, 64, 56, 56], output_shape: [1, 64, 1, 1] },
+                    { id: "flatten", type: "Flatten", num_parameters: 0, input_shape: [1, 64, 1, 1], output_shape: [1, 64] },
+                    { id: "fc", type: "Linear", num_parameters: 64 * 1000 + 1000, input_shape: [1, 64], output_shape: [1, 1000] }
+                ];
+
+                const edges = [
+                    { source: "input", target: "conv1", connection_type: "sequential" },
+                    { source: "conv1", target: "bn1", connection_type: "sequential" },
+                    { source: "bn1", target: "relu1", connection_type: "sequential" },
+                    { source: "relu1", target: "pool1", connection_type: "sequential" },
+                    { source: "pool1", target: "conv2_1", connection_type: "sequential" },
+                    { source: "conv2_1", target: "bn2_1", connection_type: "sequential" },
+                    { source: "bn2_1", target: "relu2_1", connection_type: "sequential" },
+                    { source: "relu2_1", target: "conv2_2", connection_type: "sequential" },
+                    { source: "conv2_2", target: "bn2_2", connection_type: "sequential" },
+                    { source: "bn2_2", target: "add1", connection_type: "sequential" },
+                    { source: "pool1", target: "add1", connection_type: "residual" }, // 残差连接
+                    { source: "add1", target: "relu2_2", connection_type: "sequential" },
+                    { source: "relu2_2", target: "avgpool", connection_type: "sequential" },
+                    { source: "avgpool", target: "flatten", connection_type: "sequential" },
+                    { source: "flatten", target: "fc", connection_type: "sequential" }
+                ];
+
+                return { nodes, edges, metadata: { model_type: "ResNet", complexity: "medium" } };
+            }
+
+            static generateTransformer() {
+                const nodes = [
+                    { id: "input", type: "Input", num_parameters: 0, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "pos_embed", type: "PositionalEmbedding", num_parameters: 512 * 768, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    
+                    // Multi-Head Attention
+                    { id: "norm1", type: "LayerNorm", num_parameters: 768 * 2, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "attn_q", type: "Linear", num_parameters: 768 * 768 + 768, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "attn_k", type: "Linear", num_parameters: 768 * 768 + 768, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "attn_v", type: "Linear", num_parameters: 768 * 768 + 768, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "attention", type: "MultiHeadAttention", num_parameters: 0, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "attn_out", type: "Linear", num_parameters: 768 * 768 + 768, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "add1", type: "Add", num_parameters: 0, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    
+                    // Feed Forward
+                    { id: "norm2", type: "LayerNorm", num_parameters: 768 * 2, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "ff1", type: "Linear", num_parameters: 768 * 3072 + 3072, input_shape: [1, 512, 768], output_shape: [1, 512, 3072] },
+                    { id: "gelu", type: "GELU", num_parameters: 0, input_shape: [1, 512, 3072], output_shape: [1, 512, 3072] },
+                    { id: "ff2", type: "Linear", num_parameters: 3072 * 768 + 768, input_shape: [1, 512, 3072], output_shape: [1, 512, 768] },
+                    { id: "add2", type: "Add", num_parameters: 0, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    
+                    // 分类头
+                    { id: "norm3", type: "LayerNorm", num_parameters: 768 * 2, input_shape: [1, 512, 768], output_shape: [1, 512, 768] },
+                    { id: "cls_token", type: "Select", num_parameters: 0, input_shape: [1, 512, 768], output_shape: [1, 768] },
+                    { id: "classifier", type: "Linear", num_parameters: 768 * 1000 + 1000, input_shape: [1, 768], output_shape: [1, 1000] }
+                ];
+
+                const edges = [
+                    { source: "input", target: "pos_embed", connection_type: "sequential" },
+                    { source: "pos_embed", target: "norm1", connection_type: "sequential" },
+                    { source: "norm1", target: "attn_q", connection_type: "branch" },
+                    { source: "norm1", target: "attn_k", connection_type: "branch" },
+                    { source: "norm1", target: "attn_v", connection_type: "branch" },
+                    { source: "attn_q", target: "attention", connection_type: "attention" },
+                    { source: "attn_k", target: "attention", connection_type: "attention" },
+                    { source: "attn_v", target: "attention", connection_type: "attention" },
+                    { source: "attention", target: "attn_out", connection_type: "sequential" },
+                    { source: "attn_out", target: "add1", connection_type: "sequential" },
+                    { source: "pos_embed", target: "add1", connection_type: "residual" },
+                    { source: "add1", target: "norm2", connection_type: "sequential" },
+                    { source: "norm2", target: "ff1", connection_type: "sequential" },
+                    { source: "ff1", target: "gelu", connection_type: "sequential" },
+                    { source: "gelu", target: "ff2", connection_type: "sequential" },
+                    { source: "ff2", target: "add2", connection_type: "sequential" },
+                    { source: "add1", target: "add2", connection_type: "residual" },
+                    { source: "add2", target: "norm3", connection_type: "sequential" },
+                    { source: "norm3", target: "cls_token", connection_type: "sequential" },
+                    { source: "cls_token", target: "classifier", connection_type: "sequential" }
+                ];
+
+                return { nodes, edges, metadata: { model_type: "Transformer", complexity: "high" } };
+            }
+
+            static generateComplexModel() {
+                const nodes = [
+                    // 输入分支
+                    { id: "input", type: "Input", num_parameters: 0, input_shape: [1, 3, 224, 224], output_shape: [1, 3, 224, 224] },
+                    
+                    // 分支1：卷积路径
+                    { id: "conv_branch", type: "Conv2d", num_parameters: 3 * 64 * 3 * 3, input_shape: [1, 3, 224, 224], output_shape: [1, 64, 222, 222] },
+                    { id: "conv_pool", type: "MaxPool2d", num_parameters: 0, input_shape: [1, 64, 222, 222], output_shape: [1, 64, 111, 111] },
+                    
+                    // 分支2：注意力路径
+                    { id: "attn_embed", type: "PatchEmbedding", num_parameters: 3 * 16 * 16 * 768, input_shape: [1, 3, 224, 224], output_shape: [1, 196, 768] },
+                    { id: "attn_layer", type: "MultiHeadAttention", num_parameters: 768 * 768 * 4, input_shape: [1, 196, 768], output_shape: [1, 196, 768] },
+                    
+                    // 分支3：残差路径
+                    { id: "res_conv1", type: "Conv2d", num_parameters: 3 * 32 * 1 * 1, input_shape: [1, 3, 224, 224], output_shape: [1, 32, 224, 224] },
+                    { id: "res_conv2", type: "Conv2d", num_parameters: 32 * 32 * 3 * 3, input_shape: [1, 32, 224, 224], output_shape: [1, 32, 222, 222] },
+                    { id: "res_pool", type: "AdaptiveAvgPool2d", num_parameters: 0, input_shape: [1, 32, 222, 222], output_shape: [1, 32, 111, 111] },
+                    
+                    // 特征融合
+                    { id: "feature_adapt1", type: "Conv2d", num_parameters: 64 * 128 * 1 * 1, input_shape: [1, 64, 111, 111], output_shape: [1, 128, 111, 111] },
+                    { id: "feature_adapt2", type: "Linear", num_parameters: 768 * 128 * 111 * 111, input_shape: [1, 196, 768], output_shape: [1, 128, 111, 111] },
+                    { id: "feature_adapt3", type: "Conv2d", num_parameters: 32 * 128 * 1 * 1, input_shape: [1, 32, 111, 111], output_shape: [1, 128, 111, 111] },
+                    { id: "feature_fusion", type: "Concatenate", num_parameters: 0, input_shape: [1, 128, 111, 111], output_shape: [1, 384, 111, 111] },
+                    
+                    // 最终分类器
+                    { id: "global_pool", type: "AdaptiveAvgPool2d", num_parameters: 0, input_shape: [1, 384, 111, 111], output_shape: [1, 384, 1, 1] },
+                    { id: "dropout", type: "Dropout", num_parameters: 0, input_shape: [1, 384], output_shape: [1, 384] },
+                    { id: "classifier", type: "Linear", num_parameters: 384 * 1000, input_shape: [1, 384], output_shape: [1, 1000] }
+                ];
+
+                const edges = [
+                    // 输入到三个分支
+                    { source: "input", target: "conv_branch", connection_type: "branch" },
+                    { source: "input", target: "attn_embed", connection_type: "branch" },
+                    { source: "input", target: "res_conv1", connection_type: "branch" },
+                    
+                    // 分支1处理
+                    { source: "conv_branch", target: "conv_pool", connection_type: "sequential" },
+                    { source: "conv_pool", target: "feature_adapt1", connection_type: "sequential" },
+                    
+                    // 分支2处理
+                    { source: "attn_embed", target: "attn_layer", connection_type: "sequential" },
+                    { source: "attn_layer", target: "feature_adapt2", connection_type: "sequential" },
+                    
+                    // 分支3处理
+                    { source: "res_conv1", target: "res_conv2", connection_type: "sequential" },
+                    { source: "res_conv2", target: "res_pool", connection_type: "sequential" },
+                    { source: "res_pool", target: "feature_adapt3", connection_type: "sequential" },
+                    
+                    // 残差连接
+                    { source: "res_conv1", target: "feature_adapt3", connection_type: "residual" },
+                    
+                    // 特征融合
+                    { source: "feature_adapt1", target: "feature_fusion", connection_type: "merge" },
+                    { source: "feature_adapt2", target: "feature_fusion", connection_type: "merge" },
+                    { source: "feature_adapt3", target: "feature_fusion", connection_type: "merge" },
+                    
+                    // 最终分类
+                    { source: "feature_fusion", target: "global_pool", connection_type: "sequential" },
+                    { source: "global_pool", target: "dropout", connection_type: "sequential" },
+                    { source: "dropout", target: "classifier", connection_type: "sequential" }
+                ];
+
+                return { nodes, edges, metadata: { model_type: "Complex Multi-Branch", complexity: "very_high" } };
+            }
+        }
+
+        // 主应用逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化组件
+            const appState = new AppState();
+            const notifications = new NotificationManager();
+            const graphManager = new EnhancedNetworkGraphManager();
+
+            // 获取DOM元素
+            const testSimpleCNNBtn = document.getElementById('test-simple-cnn');
+            const testResNetBtn = document.getElementById('test-resnet');
+            const testTransformerBtn = document.getElementById('test-transformer');
+            const testComplexBtn = document.getElementById('test-complex-model');
+            const layoutSelector = document.getElementById('layout-selector');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const resetViewBtn = document.getElementById('reset-view-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+
+            // 统计元素
+            const nodeCountEl = document.getElementById('node-count');
+            const edgeCountEl = document.getElementById('edge-count');
+            const layerTypesEl = document.getElementById('layer-types');
+            const complexityEl = document.getElementById('complexity');
+            const layerDistributionEl = document.getElementById('layer-distribution');
+
+            // 当前数据
+            let currentData = null;
+
+            // 事件监听器
+            themeToggle?.addEventListener('click', () => {
+                appState.toggleTheme();
+                notifications.show('主题已切换', 'success', 2000);
+            });
+
+            testSimpleCNNBtn?.addEventListener('click', () => {
+                const data = TestDataGenerator.generateSimpleCNN();
+                renderTestModel(data, '简单CNN');
+            });
+
+            testResNetBtn?.addEventListener('click', () => {
+                const data = TestDataGenerator.generateResNet();
+                renderTestModel(data, 'ResNet结构');
+            });
+
+            testTransformerBtn?.addEventListener('click', () => {
+                const data = TestDataGenerator.generateTransformer();
+                renderTestModel(data, 'Transformer');
+            });
+
+            testComplexBtn?.addEventListener('click', () => {
+                const data = TestDataGenerator.generateComplexModel();
+                renderTestModel(data, '复杂多分支模型');
+            });
+
+            layoutSelector?.addEventListener('change', (e) => {
+                if (currentData) {
+                    graphManager.changeLayout(e.target.value);
+                    notifications.show(`已切换到${e.target.value}布局`, 'success');
+                }
+            });
+
+            fullscreenBtn?.addEventListener('click', () => {
+                graphManager.toggleFullscreen();
+                fullscreenBtn.textContent = graphManager.isFullscreen ? '🔙 退出全屏' : '📱 全屏';
+            });
+
+            exportBtn?.addEventListener('click', () => {
+                graphManager.exportImage();
+                notifications.show('图像已导出', 'success');
+            });
+
+            resetViewBtn?.addEventListener('click', () => {
+                if (graphManager.network) {
+                    graphManager.network.fit({ animation: true });
+                    notifications.show('视图已重置', 'success');
+                }
+            });
+
+            // 渲染测试模型
+            function renderTestModel(data, modelName) {
+                console.log(`🎨 渲染${modelName}:`, data);
+                
+                currentData = data;
+                graphManager.render(data.nodes, data.edges, data.metadata);
+                updateStatistics(data);
+                
+                notifications.show(`${modelName}已加载`, 'success');
+            }
+
+            // 更新统计信息
+            function updateStatistics(data) {
+                const { nodes, edges, metadata } = data;
+                
+                // 基础统计
+                if (nodeCountEl) nodeCountEl.textContent = nodes.length;
+                if (edgeCountEl) edgeCountEl.textContent = edges.length;
+                
+                // 层类型统计
+                const layerTypes = {};
+                nodes.forEach(node => {
+                    const category = categorizeLayerType(node.type);
+                    layerTypes[category] = (layerTypes[category] || 0) + 1;
+                });
+                
+                if (layerTypesEl) layerTypesEl.textContent = Object.keys(layerTypes).length;
+                if (complexityEl) complexityEl.textContent = metadata.complexity || '未知';
+                
+                // 层分布
+                if (layerDistributionEl) {
+                    layerDistributionEl.innerHTML = '';
+                    Object.entries(layerTypes).forEach(([type, count]) => {
+                        const item = document.createElement('div');
+                        item.style.cssText = 'display: flex; justify-content: space-between; margin: 0.25rem 0; font-size: 0.85rem;';
+                        item.innerHTML = `<span>${type}:</span><span>${count}</span>`;
+                        layerDistributionEl.appendChild(item);
+                    });
+                }
+            }
+
+            function categorizeLayerType(type) {
+                const typeLower = type.toLowerCase();
+                if (typeLower.includes('conv')) return '卷积层';
+                if (typeLower.includes('linear') || typeLower.includes('fc')) return '全连接层';
+                if (typeLower.includes('pool')) return '池化层';
+                if (typeLower.includes('relu') || typeLower.includes('activation') || typeLower.includes('gelu')) return '激活层';
+                if (typeLower.includes('norm')) return '归一化层';
+                if (typeLower.includes('dropout')) return '正则化层';
+                if (typeLower.includes('attention')) return '注意力层';
+                if (typeLower.includes('embed')) return '嵌入层';
+                return '其他层';
+            }
+
+            console.log('🚀 NetView 增强图形测试页面已初始化');
+            notifications.show('测试页面已准备就绪', 'success', 2000);
+        });
+    </script>
+</body>
+</html>

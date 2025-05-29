@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from backend.api.schemas.response import VisualizationResponse
-from backend.api.services.visualization_service import visualization_service
+from backend.api.services.enhanced_visualization_service_complete import enhanced_visualization_service
 from backend.api.middleware.error_handler import TaskNotFoundError
 
 router = APIRouter()
@@ -36,7 +36,7 @@ async def get_visualization_data(task_id: str) -> VisualizationResponse:
     - 边：源节点、目标节点、连接类型、权重
     - 统计：参数总数、层数分布、连接复杂度
     """
-    viz_data = visualization_service.get_visualization_data(task_id)
+    viz_data = enhanced_visualization_service.get_visualization_data(task_id)
     
     if not viz_data:
         raise TaskNotFoundError(task_id)
@@ -57,7 +57,7 @@ async def get_node_details(task_id: str, node_id: str) -> Dict[str, Any]:
     - 参数详情
     - 形状变化信息
     """
-    node_details = visualization_service.get_node_details(task_id, node_id)
+    node_details = enhanced_visualization_service.get_node_details(task_id, node_id)
     
     if not node_details:
         raise HTTPException(
@@ -96,7 +96,7 @@ async def get_subgraph(task_id: str, node_ids: List[str]) -> Dict[str, Any]:
             detail="至少需要指定一个节点ID"
         )
     
-    subgraph_data = visualization_service.get_subgraph(task_id, node_ids)
+    subgraph_data = enhanced_visualization_service.get_subgraph(task_id, node_ids)
     
     if not subgraph_data:
         raise TaskNotFoundError(task_id)
@@ -116,7 +116,7 @@ async def get_graph_statistics(task_id: str) -> Dict[str, Any]:
     - 连接分析：连接类型、复杂度评分
     - 增强统计：动态特性、架构模式
     """
-    viz_data = visualization_service.get_visualization_data(task_id)
+    viz_data = enhanced_visualization_service.get_visualization_data(task_id)
     
     if not viz_data:
         raise TaskNotFoundError(task_id)
@@ -172,7 +172,7 @@ async def get_layout_data(task_id: str, layout_type: Optional[str] = "hierarchic
     - 布局参数
     - 视窗设置
     """
-    viz_data = visualization_service.get_visualization_data(task_id)
+    viz_data = enhanced_visualization_service.get_visualization_data(task_id)
     
     if not viz_data:
         raise TaskNotFoundError(task_id)
