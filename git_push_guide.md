@@ -1,5 +1,5 @@
 # NetView项目Git推送操作指南
-
+# 两个分支:main和master
 ## 📋 准备工作
 
 在开始之前，请确保：
@@ -104,7 +104,7 @@ git branch
 git branch -M main
 
 # 首次推送到远程仓库
-git push -u origin master
+git push -u origin main
 
 # 后续推送可以直接使用
 # git push

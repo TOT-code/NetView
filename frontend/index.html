@@ -12,33 +12,143 @@
     <div class="container">
         <header>
             <h1>NetView 模型分析与可视化</h1>
+            <button class="theme-toggle" id="theme-toggle">🌙 暗色主题</button>
         </header>
 
-        <main>
-            <section id="input-section">
-                <h2>模型输入</h2>
-                <textarea id="model-code" placeholder="在此处粘贴PyTorch模型代码..."></textarea>
-                <button id="analyze-button">开始分析</button>
-                <div id="loading-indicator" style="display: none;">正在分析中，请稍候...</div>
-            </section>
+        <div class="main-grid">
+            <!-- 侧边栏 - 输入区域 -->
+            <div class="sidebar">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">模型输入</h2>
+                    </div>
+                    <div class="card-content">
+                        <textarea 
+                            id="model-code" 
+                            placeholder="在此处粘贴您的PyTorch模型代码...
 
-            <section id="visualization-section">
-                <h2>模型结构图</h2>
-                <div id="network-graph"></div>
-            </section>
+例如：
+import torch
+import torch.nn as nn
 
-            <section id="statistics-section">
-                <h2>基本统计信息</h2>
-                <div id="stats-content">
-                    <p><strong>总参数量:</strong> <span id="total-params">-</span></p>
-                    <p><strong>总层数:</strong> <span id="total-layers">-</span></p>
-                    <p><strong>可训练参数:</strong> <span id="trainable-params">-</span></p>
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        super(SimpleCNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, 3)
+        self.conv2 = nn.Conv2d(32, 64, 3)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(64 * 6 * 6, 128)
+        self.fc2 = nn.Linear(128, 10)
+        
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 6 * 6)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x"
+                        ></textarea>
+                        <button id="analyze-button" class="btn btn-primary">
+                            <span id="analyze-text">🚀 开始分析</span>
+                        </button>
+                        
+                        <div id="loading-indicator" class="loading-container hidden">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">正在分析模型，请稍候...</div>
+                            <div class="loading-progress">
+                                <div class="loading-progress-bar" id="loading-progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </section>
-        </main>
 
-        <footer>
-            <p>&copy; 2025 NetView 项目</p>
+                <!-- 统计信息卡片 -->
+                <div class="card slide-up">
+                    <div class="card-header">
+                        <h2 class="card-title">📊 模型统计</h2>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">总参数量</div>
+                                <div class="stat-value" id="total-params">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">总层数</div>
+                                <div class="stat-value" id="total-layers">-</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">可训练参数</div>
+                                <div class="stat-value" id="trainable-params">-</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 额外统计信息 -->
+                        <div id="additional-stats" class="hidden" style="margin-top: 1.5rem;">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-label">模型大小</div>
+                                    <div class="stat-value" id="model-size">-</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">计算复杂度</div>
+                                    <div class="stat-value" id="flops">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="main-content">
+                <!-- 模型可视化 -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h2 class="card-title">🎯 模型结构图</h2>
+                        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                            <button id="fullscreen-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" title="全屏查看">
+                                📱 全屏
+                            </button>
+                            <button id="export-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" title="导出图像">
+                                💾 导出
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div id="network-graph">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); flex-direction: column; gap: 1rem;">
+                                <div style="font-size: 3rem;">🤖</div>
+                                <div style="font-size: 1.1rem;">等待分析模型...</div>
+                                <div style="font-size: 0.9rem; opacity: 0.7;">请在左侧输入您的PyTorch模型代码</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模型详细信息 -->
+                <div class="card slide-up hidden" id="model-details">
+                    <div class="card-header">
+                        <h2 class="card-title">📋 模型详细信息</h2>
+                    </div>
+                    <div class="card-content">
+                        <div id="model-details-content">
+                            <!-- 这里将动态加载模型详细信息 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态通知 -->
+        <div id="notification" class="hidden" style="position: fixed; top: 2rem; right: 2rem; z-index: 1000; max-width: 300px;">
+            <div style="background: var(--success-color); color: white; padding: 1rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                <div id="notification-text"></div>
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            <p>&copy; 2025 NetView 项目 - 现代化神经网络可视化工具</p>
         </footer>
     </div>
 
